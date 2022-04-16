@@ -1,0 +1,7 @@
+
+.vscode/
+a.out
+data/**
+**/.DS_Store
+*.o
+*.gch   
