@@ -1,5 +1,6 @@
 ## Todo
 
+- [ ] Usage
 - [ ] Make compatible with C++11, by removing uses of startsWith
 - [ ] Prettier file parsing, using enums
 - [ ] Speed up file read by dividing file in chunks and parallelizing
@@ -9,4 +10,3 @@
 - [ ] Debug/verbose mode, logging levels
 - [ ] Compare with Python to make sure we're not fooling ourselves
 - [ ] tSNE visualization
-- [ ] Committing

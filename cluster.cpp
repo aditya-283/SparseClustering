@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <set> 
 #include <math.h>
+#include <chrono>
 
 #define DEFAULT_PEPMASS_THRESHOLD 2.f
 #define DEFAULT_PEAK_THRESHOLD 0.02f
@@ -110,7 +111,6 @@ void naive_cluster_spectra(std::vector<int>& clusters, const std::vector<spectru
         std::unordered_set<int> seen_candidates;
         for (int j=0; j<i; j++) {
             int candidate = clusters[j];
-            printf("legal %d\n", candidate);
             if (seen_candidates.find(candidate) != seen_candidates.end()) continue;
             if (passes_pepmass_test(spectra[i], spectra[candidate]) && is_similar(spectra[i], spectra[candidate])) {
                 clusters[i] = candidate;
@@ -126,7 +126,7 @@ int main(int argc, char* argv[]) {
     using namespace std::chrono;
     typedef std::chrono::high_resolution_clock Clock;
     typedef std::chrono::duration<double> dsec;
-    std::string file_path = "data/100000.mgf";
+    std::string file_path = "data/chunk1.mgf";
     printf("Parsing file %s ...\n", file_path.c_str());
     auto init_start = Clock::now();
     std::vector<spectrum_t> spectra = parseMgfFile(file_path);
@@ -135,7 +135,7 @@ int main(int argc, char* argv[]) {
     printf("Parsing took %lf seconds\n", duration_cast<dsec>(parsing_complete - init_start).count());
     printf("Clustering %lu spectra ...\n", spectra.size());
     std::vector<int> clusters = initialize_cluster(sz); // stores the representative for the cluster that the ith spectrum belongs to
-    naive_cluster_spectra(clusters, spectra);
+    cluster_spectra(clusters, spectra);
     auto clustering_complete = Clock::now();
     printf("Clustering took %lf seconds\n", duration_cast<dsec>(clustering_complete - parsing_complete).count());
     auto num_clusters = std::set<int>(clusters.begin(), clusters.end()).size();
