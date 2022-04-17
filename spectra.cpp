@@ -43,7 +43,6 @@ std::vector<spectrum_t> parseMgfFile(std::string path) {
             state = PEAKS;
             cur->rtin_seconds = std::stof(token);
         } else if (line.starts_with("END IONS")) {
-            // printSpectrum(*cur);
             state = NO_PARSE;
             spectra.push_back(*cur);
         } else if (state == PEAKS) {
@@ -59,16 +58,14 @@ std::vector<spectrum_t> parseMgfFile(std::string path) {
     return spectra;
 }
 
-int main(int argc, char* argv[]) {
-    using namespace std::chrono;
-    typedef std::chrono::high_resolution_clock Clock;
-    typedef std::chrono::duration<double> dsec;
+void printSpectrum(spectrum_t spectrum, bool verbose) {
+    printf("Title: %s\n", spectrum.title.c_str());
+    printf("Pepmass: %f\n", spectrum.pepmass);
+    printf("Rtin Seconds: %f\n", spectrum.rtin_seconds);
+    printf("Number of peaks: %zu\n", spectrum.num_peaks);
+    // for (int i=0; i<spectrum.num_peaks; i++) {
+    //     printf("%f: %lu\n", spectrum.peaks[i], spectrum.intensities[i]);
+    // }
+    printf("\n");
+} 
 
-    auto init_start = Clock::now();
-
-    std::vector<spectrum_t> spectra = parseMgfFile("data/chunk1.mgf");
-    size_t sz = spectra.size();
-    printf("Number of spectra %lu\n", sz);
-    auto parse_complete = Clock::now();
-    printf("Parsing Time: %lf.\n", duration_cast<dsec>(parse_complete - init_start).count());
-}
