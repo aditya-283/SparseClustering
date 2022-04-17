@@ -9,3 +9,4 @@
 - [ ] Debug/verbose mode, logging levels
 - [ ] Compare with Python to make sure we're not fooling ourselves
 - [ ] tSNE visualization
+- [ ] Committing
