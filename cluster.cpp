@@ -168,6 +168,7 @@ void cluster_spectra(std::vector<int>& clusters, const std::vector<spectrum_t>& 
 
         if (new_cluster) bucket_spectrum_peaks(peak_buckets, spectra[i], i);
     }
+    print_progress(1.0f);
 }
 
 /**
@@ -221,7 +222,7 @@ int main(int argc, char* argv[]) {
     std::vector<spectrum_t> spectra = parse_mgf_file(file_path);
     int sz = spectra.size();
     auto parsing_complete = Clock::now();
-    printf("\nParsing took %lf seconds\n", duration_cast<dsec>(parsing_complete - init_start).count());
+    printf("\nReading the file took %lf seconds in total\n", duration_cast<dsec>(parsing_complete - init_start).count());
 
     printf("\nClustering %lu spectra ...\n", spectra.size());
     std::vector<int> clusters = initialize_cluster(sz); // stores the representative for the cluster that the ith spectrum belongs to
