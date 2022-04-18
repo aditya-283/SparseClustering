@@ -2,6 +2,15 @@
 
 ## Running Instructions
 
+``` 
+git clone https://github.com/razered/SparseClustering
+cd SparseClustering/
+mkdir data/
+// add 100000.mgf to data/
+make 
+./cluster 
+```
+
 ## Project Structure
 
 ## Background
