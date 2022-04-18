@@ -2,9 +2,10 @@
  * @file spectra.cpp
  * @brief Algorithms to cluster spectral data efficiently
  * 
- * We employ bottom-up agglomerative clustering of spectra using cosine similarity. 
- * Two heurstics are implemented to speed up the process. The first is that we only attempt clustering two spectra 
- * if their pepmasses are close to each other. The second is that we only cluster spectra if they share some top peaks.
+ * We implement bottom-up agglomerative clustering of spectra using cosine similarity. 
+ * We expose two methods - one that does this naively and the other that employs two approximation heuristics to speed up the process.
+ * The first heuristic is that we only attempt clustering two spectra if their pepmasses are close to each other. 
+ * The second heuristic is that we only cluster spectra if they share some top peaks.
  * 
  * @author Aditya Bhagwat abhagwa2@cs.cmu.edu
  */
@@ -72,24 +73,12 @@ std::vector<int> initialize_cluster(int sz) {
 }
 
 // gets start point of peak_bucket. e.g. 50.01 lies in (50.00, 50.02) so this should return (50.00)
-<<<<<<< Updated upstream
-/**
-* @brief 
-* @param
-* @return
-*/
-peak_t get_peak_bucket(peak_t peak) {
-    float round_peak = roundf(peak * 100) / 100; 
-    int nearest = ((int) (round_peak * 100) / 2) * 2;
-    return (peak_t)nearest/100.f;
-=======
 std::string get_peak_bucket(peak_t peak) {
     char buffer[10];
     int round_peak = floorf(peak * 100);
     int nearest = ((int) (round_peak) / 2) * 2;
     snprintf(buffer, 10, "%.*f", 2, nearest/100.f);
     return buffer;
->>>>>>> Stashed changes
 }
 
 std::vector<int> get_common_peak_candidates(const spectrum_t& spectrum, std::unordered_map<std::string, std::vector<int>>& peak_buckets) {
@@ -147,6 +136,10 @@ void cluster_spectra(std::vector<int>& clusters, const std::vector<spectrum_t>& 
             bucket_spectrum_peaks(peak_buckets, spectra[i], i);
         }
     }
+}
+
+void print_clusters(const vector<int>& clusters) {
+
 }
 
 // includes the pepmass test
