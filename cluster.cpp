@@ -1,6 +1,11 @@
 /**
- * @file cluster.cpp
- * @brief  Exposes three methods 
+ * @file spectra.cpp
+ * @brief Algorithms to cluster spectral data efficiently
+ * 
+ * We employ bottom-up agglomerative clustering of spectra using cosine similarity. 
+ * Two heurstics are implemented to speed up the process. The first is that we only attempt clustering two spectra 
+ * if their pepmasses are close to each other. The second is that we only cluster spectra if they share some top peaks.
+ * 
  * @author Aditya Bhagwat abhagwa2@cs.cmu.edu
  */
 
@@ -11,6 +16,8 @@
 #include <set> 
 #include <math.h>
 #include <chrono>
+#include <iostream>
+#include <algorithm>
 
 #define DEFAULT_PEPMASS_THRESHOLD 2.f
 #define DEFAULT_PEAK_THRESHOLD 0.02f
@@ -65,6 +72,7 @@ std::vector<int> initialize_cluster(int sz) {
 }
 
 // gets start point of peak_bucket. e.g. 50.01 lies in (50.00, 50.02) so this should return (50.00)
+<<<<<<< Updated upstream
 /**
 * @brief 
 * @param
@@ -74,14 +82,23 @@ peak_t get_peak_bucket(peak_t peak) {
     float round_peak = roundf(peak * 100) / 100; 
     int nearest = ((int) (round_peak * 100) / 2) * 2;
     return (peak_t)nearest/100.f;
+=======
+std::string get_peak_bucket(peak_t peak) {
+    char buffer[10];
+    int round_peak = floorf(peak * 100);
+    int nearest = ((int) (round_peak) / 2) * 2;
+    snprintf(buffer, 10, "%.*f", 2, nearest/100.f);
+    return buffer;
+>>>>>>> Stashed changes
 }
 
-std::vector<int> get_common_peak_candidates(const spectrum_t& spectrum, std::unordered_map<peak_t, std::vector<int>>& peak_buckets) {
+std::vector<int> get_common_peak_candidates(const spectrum_t& spectrum, std::unordered_map<std::string, std::vector<int>>& peak_buckets) {
     std::vector<int> candidates;
-    for (int i=0; i<5; i++) {
-        peak_t peak = get_peak_bucket(spectrum.peaks[i]);
-        if (peak_buckets.find(peak) != peak_buckets.end()) {
-            candidates.insert(candidates.end(), peak_buckets[peak].begin(), peak_buckets[peak].end());
+    int sz = std::min(5, (int)spectrum.num_peaks);
+    for (int i=0; i<sz; i++) {
+        std::string peak_str = get_peak_bucket(spectrum.peaks[i]);
+        if (peak_buckets.find(peak_str) != peak_buckets.end()) {
+            candidates.insert(candidates.end(), peak_buckets[peak_str].begin(), peak_buckets[peak_str].end());
         } 
     }
 
@@ -90,10 +107,20 @@ std::vector<int> get_common_peak_candidates(const spectrum_t& spectrum, std::uno
     return candidates;
 }
 
-void bucket_spectrum_peaks(std::unordered_map<peak_t, std::vector<int>>& peak_buckets, const spectrum_t& spectrum, int idx) {
-    for (int i=0; i<5; i++) {
-        peak_t peak = get_peak_bucket(spectrum.peaks[i]);
+void bucket_spectrum_peaks(std::unordered_map<std::string, std::vector<int>>& peak_buckets, const spectrum_t& spectrum, int idx) {
+    int sz = std::min(5, (int)spectrum.num_peaks);
+    for (int i=0; i<sz; i++) {
+        std::string peak = get_peak_bucket(spectrum.peaks[i]);
         peak_buckets[peak].push_back(idx);
+    }
+}
+
+void dbg_print_buckets(std::unordered_map<std::string, std::vector<int>>& peak_buckets) {
+    for (auto& it: peak_buckets) {
+        printf("key : %s\t", it.first.c_str());
+        for (int v: it.second)
+            printf("%d ", v);
+        printf("\n");
     }
 }
 
@@ -104,8 +131,8 @@ void bucket_spectrum_peaks(std::unordered_map<peak_t, std::vector<int>>& peak_bu
 * @return
 */
 void cluster_spectra(std::vector<int>& clusters, const std::vector<spectrum_t>& spectra) {
-    std::unordered_map<peak_t, std::vector<int>> peak_buckets;
-    for (int i=1; i<spectra.size(); i++) {
+    std::unordered_map<std::string, std::vector<int>> peak_buckets;
+    for (int i=0; i<spectra.size(); i++) {
         bool new_cluster = true;
         std::vector<int> candidates = get_common_peak_candidates(spectra[i], peak_buckets);
         for (const int& candidate: candidates) {
@@ -153,7 +180,7 @@ int main(int argc, char* argv[]) {
     using namespace std::chrono;
     typedef std::chrono::high_resolution_clock Clock;
     typedef std::chrono::duration<double> dsec;
-    std::string file_path = "data/chunk1.mgf";
+    std::string file_path = "data/100000.mgf";
     printf("Parsing file %s ...\n", file_path.c_str());
     auto init_start = Clock::now();
     std::vector<spectrum_t> spectra = parseMgfFile(file_path);
