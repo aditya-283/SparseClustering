@@ -78,6 +78,7 @@ std::string get_peak_bucket(peak_t peak) {
     int round_peak = floorf(peak * 100);
     int nearest = ((int) (round_peak) / 2) * 2;
     snprintf(buffer, 10, "%.*f", 2, nearest/100.f);
+    printf("%f peak will fall into %s bucket\n", peak, buffer);
     return buffer;
 }
 
@@ -138,10 +139,6 @@ void cluster_spectra(std::vector<int>& clusters, const std::vector<spectrum_t>& 
     }
 }
 
-void print_clusters(const vector<int>& clusters) {
-
-}
-
 // includes the pepmass test
 /**
 * @brief 
@@ -173,7 +170,7 @@ int main(int argc, char* argv[]) {
     using namespace std::chrono;
     typedef std::chrono::high_resolution_clock Clock;
     typedef std::chrono::duration<double> dsec;
-    std::string file_path = "data/100000.mgf";
+    std::string file_path = "data/chunk1.mgf";
     printf("Parsing file %s ...\n", file_path.c_str());
     auto init_start = Clock::now();
     std::vector<spectrum_t> spectra = parseMgfFile(file_path);
