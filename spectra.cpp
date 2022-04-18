@@ -9,17 +9,58 @@
 #include <fstream>
 #include <string>
 #include <iterator>
+#include <exception>
+
+#define PBSTR "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||"
+#define PBWIDTH 60
 
 /**
 * @brief Parsing states for parsing the .mgf file. 
 * Parsing each spectrum involves cycling through the three states.
 */
 
-typedef enum parse_state { NO_PARSE, PROPERTIES, PEAKS } parse_state;
+enum parse_state { NO_PARSE, PROPERTIES, PEAKS };
+
+enum property {TITLE, PEPMASS, RTINSECONDS};
+
+property inline from_string(std::string property_name) {
+    if (property_name == "TITLE") return TITLE;
+    else if (property_name == "PEPMASS") return PEPMASS;
+    else if (property_name == "RTINSECONDS") return RTINSECONDS;
+    else throw std::runtime_error("Unhandled property name!"); 
+}
 
 bool inline starts_with(const std::string& big, const std::string& small) {
-    return small.length() <= big.length() 
-        && equal(small.begin(), small.end(), big.begin());
+    return small.length() <= big.length() && 
+           equal(small.begin(), small.end(), big.begin());
+}
+
+parse_state read_property(std::string line, spectrum_t* spectrum) {
+    std::string prop_delimiter = "=";
+    std::string prop_name = line.substr(0, line.find(prop_delimiter)); 
+    std::string prop_val = line.substr(line.find(prop_delimiter) + 1);
+    parse_state final_state = PROPERTIES;
+    switch (from_string(prop_name)) {
+        case TITLE: 
+            spectrum->title = prop_val;
+            break;
+        case PEPMASS: 
+            spectrum->pepmass = std::stof(prop_val);
+            break;
+        case RTINSECONDS: 
+            spectrum->rtin_seconds = std::stof(prop_val);
+            final_state = PEAKS;
+            break;
+    }
+    return final_state;
+}
+
+void print_progress(double percentage) {
+    int val = (int) (percentage * 100);
+    int lpad = (int) (percentage * PBWIDTH);
+    int rpad = PBWIDTH - lpad;
+    printf("\r%3d%% [%.*s%*s]", val, lpad, PBSTR, rpad, "");
+    fflush(stdout);
 }
 
 /**
@@ -27,32 +68,23 @@ bool inline starts_with(const std::string& big, const std::string& small) {
 * @param
 * @return
 */
-std::vector<spectrum_t> parseMgfFile(std::string path) {
+std::vector<spectrum_t> parse_mgf_file(std::string path) {
     std::vector<spectrum_t> spectra;
     spectrum_t* cur;
     parse_state state = NO_PARSE;
-
     std::ifstream ifs(path);
     std::string result(std::istreambuf_iterator<char>{ifs}, {});
     std::istringstream stream(result);
     std::string line;
+    int count = 0;
+    printf("Parsing file %s ...\n", path.c_str());
     while (std::getline(stream, line)) {
         if (state == NO_PARSE && starts_with(line, "BEGIN IONS")) {
             cur = new spectrum_t();
             state = PROPERTIES;
-        } else if(state == PROPERTIES && starts_with(line, "TITLE=")) {
-            std::string delimiter = "TITLE=";
-            std::string title_token = line.substr(delimiter.size()); 
-            cur->title = title_token;
-        } else if (state == PROPERTIES && starts_with(line, "PEPMASS=")) {
-            std::string delimiter = "PEPMASS=";
-            std::string token = line.substr(delimiter.size()); 
-            cur->pepmass = std::stof(token);
-        } else if (state == PROPERTIES && starts_with(line, "RTINSECONDS=")) {
-            std::string delimiter = "RTINSECONDS=";
-            std::string token = line.substr(delimiter.size()); 
-            state = PEAKS;
-            cur->rtin_seconds = std::stof(token);
+            print_progress((float)count/result.size());
+        } else if (state == PROPERTIES) {
+            state = read_property(line, cur);
         } else if (starts_with(line, "END IONS")) {
             state = NO_PARSE;
             spectra.push_back(*cur);
@@ -64,8 +96,9 @@ std::vector<spectrum_t> parseMgfFile(std::string path) {
             cur->peaks.push_back(std::stof(peak_str));
             cur->intensities.push_back(std::stof(intensity_str));
         }
+        count += line.size();
     }
-
+    print_progress(1.0);
     return spectra;
 }
 
@@ -74,14 +107,14 @@ std::vector<spectrum_t> parseMgfFile(std::string path) {
 * @param
 * @return
 */
-void printSpectrum(spectrum_t spectrum, bool verbose) {
+void print_spectrum(spectrum_t spectrum, bool verbose) {
     printf("Title: %s\n", spectrum.title.c_str());
     printf("Pepmass: %f\n", spectrum.pepmass);
     printf("Rtin Seconds: %f\n", spectrum.rtin_seconds);
-    printf("Number of peaks: %zu\n", spectrum.num_peaks);
+    printf("Number of peaks: %d\n", spectrum.num_peaks);
     if (verbose) {
         for (int i=0; i<spectrum.num_peaks; i++) {
-            printf("%f: %lu\n", spectrum.peaks[i], spectrum.intensities[i]);
+            printf("%f: %d\n", spectrum.peaks[i], spectrum.intensities[i]);
         }
     }
     printf("\n");

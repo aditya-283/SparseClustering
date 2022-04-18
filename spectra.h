@@ -18,12 +18,12 @@ typedef struct {
     float pepmass;
     float rtin_seconds;
     std::string title;
-    size_t num_peaks;
+    int num_peaks;
     std::vector<peak_t> peaks;
-    std::vector<size_t> intensities;
+    std::vector<int> intensities;
 } spectrum_t;
 
-std::vector<spectrum_t> parseMgfFile(std::string path);
-void printSpectrum(spectrum_t spectrum, bool verbose);
+std::vector<spectrum_t> parse_mgf_file(std::string path);
+void print_spectrum(spectrum_t spectrum, bool verbose);
 
 #endif
