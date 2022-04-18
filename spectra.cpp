@@ -1,5 +1,6 @@
 /**
- * Reading spectra
+ * @file spectra.cpp
+ * @brief Reading spectra from .mgf files and printing spectra to stdout.
  * @author Aditya Bhagwat abhagwa2@cs.cmu.edu
  */
 
@@ -9,15 +10,23 @@
 #include <string>
 #include <iterator>
 
+/**
+* @brief Parsing states for parsing the .mgf file. 
+* Parsing each spectrum involves cycling through the three states.
+*/
+
 typedef enum parse_state { NO_PARSE, PROPERTIES, PEAKS } parse_state;
-
-
 
 bool inline starts_with(const std::string& big, const std::string& small) {
     return small.length() <= big.length() 
         && equal(small.begin(), small.end(), big.begin());
 }
 
+/**
+* @brief 
+* @param
+* @return
+*/
 std::vector<spectrum_t> parseMgfFile(std::string path) {
     std::vector<spectrum_t> spectra;
     spectrum_t* cur;
@@ -60,14 +69,21 @@ std::vector<spectrum_t> parseMgfFile(std::string path) {
     return spectra;
 }
 
+/**
+* @brief 
+* @param
+* @return
+*/
 void printSpectrum(spectrum_t spectrum, bool verbose) {
     printf("Title: %s\n", spectrum.title.c_str());
     printf("Pepmass: %f\n", spectrum.pepmass);
     printf("Rtin Seconds: %f\n", spectrum.rtin_seconds);
     printf("Number of peaks: %zu\n", spectrum.num_peaks);
-    // for (int i=0; i<spectrum.num_peaks; i++) {
-    //     printf("%f: %lu\n", spectrum.peaks[i], spectrum.intensities[i]);
-    // }
+    if (verbose) {
+        for (int i=0; i<spectrum.num_peaks; i++) {
+            printf("%f: %lu\n", spectrum.peaks[i], spectrum.intensities[i]);
+        }
+    }
     printf("\n");
 } 
 

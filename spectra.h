@@ -1,5 +1,6 @@
 /**
- * Reading spectra
+ * @file spectra.h
+ * @brief Reading spectra from .mgf files and printing spectra to stdout.
  * @author Aditya Bhagwat abhagwa2@cs.cmu.edu
  */
 
@@ -22,8 +23,7 @@ typedef struct {
     std::vector<size_t> intensities;
 } spectrum_t;
 
-void parseMgfFile(FILE* filePath, std::vector<spectrum_t> spectra);
-
-
+std::vector<spectrum_t> parseMgfFile(std::string path);
+void printSpectrum(spectrum_t spectrum, bool verbose);
 
 #endif

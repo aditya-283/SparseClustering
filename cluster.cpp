@@ -1,9 +1,11 @@
 /**
- * Clustering spectra
+ * @file cluster.cpp
+ * @brief  Exposes three methods 
  * @author Aditya Bhagwat abhagwa2@cs.cmu.edu
  */
 
 #include "spectra.cpp"
+#include "cluster.h"
 #include <unordered_set>
 #include <unordered_map>
 #include <set> 
@@ -49,6 +51,11 @@ bool inline is_similar(const spectrum_t& a, const spectrum_t& b) {
     return cosine_similarity(a, b) > DEFAULT_SIMILARITY_THRESHOLD;
 }
 
+/**
+* @brief 
+* @param
+* @return
+*/
 std::vector<int> initialize_cluster(int sz) {
     std::vector<int> clusters(sz, 0);
     for (int i=0; i<sz; i++) {
@@ -58,6 +65,11 @@ std::vector<int> initialize_cluster(int sz) {
 }
 
 // gets start point of peak_bucket. e.g. 50.01 lies in (50.00, 50.02) so this should return (50.00)
+/**
+* @brief 
+* @param
+* @return
+*/
 peak_t get_peak_bucket(peak_t peak) {
     float round_peak = roundf(peak * 100) / 100; 
     int nearest = ((int) (round_peak * 100) / 2) * 2;
@@ -86,6 +98,11 @@ void bucket_spectrum_peaks(std::unordered_map<peak_t, std::vector<int>>& peak_bu
 }
 
 // also uses pepmass test
+/**
+* @brief 
+* @param
+* @return
+*/
 void cluster_spectra(std::vector<int>& clusters, const std::vector<spectrum_t>& spectra) {
     std::unordered_map<peak_t, std::vector<int>> peak_buckets;
     for (int i=1; i<spectra.size(); i++) {
@@ -106,6 +123,11 @@ void cluster_spectra(std::vector<int>& clusters, const std::vector<spectrum_t>& 
 }
 
 // includes the pepmass test
+/**
+* @brief 
+* @param
+* @return
+*/
 void naive_cluster_spectra(std::vector<int>& clusters, const std::vector<spectrum_t>& spectra) {
     for (int i=1; i<spectra.size(); i++) {
         std::unordered_set<int> seen_candidates;
@@ -122,6 +144,11 @@ void naive_cluster_spectra(std::vector<int>& clusters, const std::vector<spectru
     }
 }
 
+/**
+* @brief 
+* @param
+* @return
+*/
 int main(int argc, char* argv[]) {
     using namespace std::chrono;
     typedef std::chrono::high_resolution_clock Clock;
