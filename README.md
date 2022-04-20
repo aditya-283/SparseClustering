@@ -2,7 +2,6 @@
 
 ## Running Instructions
 
-Set up
 ```python
 git clone https://github.com/razered/SparseClustering
 cd SparseClustering/
