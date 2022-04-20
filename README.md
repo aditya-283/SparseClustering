@@ -2,13 +2,22 @@
 
 ## Running Instructions
 
+Set up
 ```python
 git clone https://github.com/razered/SparseClustering
 cd SparseClustering/
-mkdir data/
-# add 100000.mgf to data/
 make 
-./cluster 
+# Add .mgf data files to the folder
+```
+
+```
+Usage: ./cluster OPTIONS
+
+OPTIONS:
+        -f <input_filename> (required)
+        -m <pepmass_bin> (default: 2.0)
+        -p <peak_bin>  (default: 0.02)
+        -t <similarity_threshold> (default: 0.7)
 ```
 
 ## Project Structure
