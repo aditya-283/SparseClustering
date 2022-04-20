@@ -95,13 +95,6 @@ std::vector<int> initialize_cluster(int sz) {
 * @param peak the peak to be bucketed
 * @return string representation of peak bucket so that it can be hashed.
 */
-// std::string get_peak_bucket(peak_t peak) {
-//     char buffer[10];
-//     int round_peak = floorf(peak * 100);
-//     int nearest = ((int) (round_peak) / 2) * 2;
-//     snprintf(buffer, 10, "%.*f", 2, nearest/100.f);
-//     return buffer;
-// }
 std::string get_peak_bucket(peak_t peak) {
 	char buffer[10];
 	float result =  floorf(peak / peak_bin) * peak_bin;
@@ -166,7 +159,7 @@ void dbg_print_buckets(std::unordered_map<std::string, std::vector<int>>& peak_b
 void cluster_spectra(std::vector<int>& clusters, const std::vector<spectrum_t>& spectra) {
     std::unordered_map<std::string, std::vector<int>> peak_buckets;
     for (int i=0; i<spectra.size(); i++) {
-        if (i % (spectra.size()/100)) print_progress((float)i/spectra.size());
+        if (!(i % (spectra.size()/100))) print_progress((float)i/spectra.size());
         bool new_cluster = true;
         std::vector<int> candidates = get_common_peak_candidates(spectra[i], peak_buckets);
         for (const int& candidate: candidates) {
@@ -257,16 +250,14 @@ int main(int argc, const char *argv[]) {
     _argc = argc - 1;
     _argv = argv + 1;
     const char *file_path = get_option_string("-f", NULL);
-    float pepmass_bin = get_option_float("-m", DEFAULT_PEPMASS_BIN);
-    float peak_bin = get_option_float("-p", DEFAULT_PEAK_BIN);
-    float similarity_threshold = get_option_float("-t", DEFAULT_SIMILARITY_THRESHOLD);
+    pepmass_bin = get_option_float("-m", DEFAULT_PEPMASS_BIN);
+    peak_bin = get_option_float("-p", DEFAULT_PEAK_BIN);
+    similarity_threshold = get_option_float("-t", DEFAULT_SIMILARITY_THRESHOLD);
 
     if (file_path == NULL) {
         show_help(argv[0]);
         return -1;
     }
-
-    // std::string file_path = "data/100000.mgf";
 
     printf("Completing intial setup ...\n");
     auto init_start = Clock::now();

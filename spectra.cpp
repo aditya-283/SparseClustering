@@ -72,17 +72,14 @@ std::vector<spectrum_t> parse_mgf_file(std::string path) {
     std::vector<spectrum_t> spectra;
     spectrum_t* cur;
     parse_state state = NO_PARSE;
-    std::ifstream ifs(path);
-    std::string result(std::istreambuf_iterator<char>{ifs}, {});
-    std::istringstream stream(result);
+    std::ifstream file_stream(path);
     std::string line;
     int count = 0;
     printf("Parsing file %s ...\n", path.c_str());
-    while (std::getline(stream, line)) {
+    while (std::getline(file_stream, line)) {
         if (state == NO_PARSE && starts_with(line, "BEGIN IONS")) {
             cur = new spectrum_t();
             state = PROPERTIES;
-            print_progress((float)count/result.size());
         } else if (state == PROPERTIES) {
             state = read_property(line, cur);
         } else if (starts_with(line, "END IONS")) {
@@ -98,7 +95,6 @@ std::vector<spectrum_t> parse_mgf_file(std::string path) {
         }
         count += line.size();
     }
-    print_progress(1.0);
     return spectra;
 }
 
