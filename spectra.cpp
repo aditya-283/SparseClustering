@@ -73,6 +73,10 @@ std::vector<spectrum_t> parse_mgf_file(std::string path) {
     spectrum_t* cur;
     parse_state state = NO_PARSE;
     std::ifstream file_stream(path);
+    if (!file_stream.is_open()) {
+        printf("File %s could not be opened!\n", path.c_str());
+        exit(-1);
+    }
     std::string line;
     int count = 0;
     printf("Parsing file %s ...\n", path.c_str());

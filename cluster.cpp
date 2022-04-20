@@ -246,16 +246,13 @@ int main(int argc, const char *argv[]) {
     typedef std::chrono::high_resolution_clock Clock;
     typedef std::chrono::duration<double> dsec;
 
-
     _argc = argc - 1;
     _argv = argv + 1;
     const char *file_path = get_option_string("-f", NULL);
     pepmass_bin = get_option_float("-m", DEFAULT_PEPMASS_BIN);
     peak_bin = get_option_float("-p", DEFAULT_PEAK_BIN);
     similarity_threshold = get_option_float("-t", DEFAULT_SIMILARITY_THRESHOLD);
-
-    printf("Using parameters pepmass_bin=%f peak_bin=%f and similarity_threshold=%f ...\n", pepmass_bin, peak_bin, similarity_threshold);
-
+    
     if (file_path == NULL) {
         show_help(argv[0]);
         return -1;
@@ -265,9 +262,9 @@ int main(int argc, const char *argv[]) {
     std::vector<spectrum_t> spectra = parse_mgf_file(file_path);
     int sz = spectra.size();
     auto parsing_complete = Clock::now();
-    printf("\nReading the file took %lf seconds in total\n", duration_cast<dsec>(parsing_complete - init_start).count());
-
-    printf("\nClustering %lu spectra ...\n", spectra.size());
+    printf("Reading the file took %lf seconds in total\n", duration_cast<dsec>(parsing_complete - init_start).count());
+    printf("Using parameters pepmass_bin=%.2f peak_bin=%.3f and similarity_threshold=%.2f ...\n", pepmass_bin, peak_bin, similarity_threshold);
+    printf("Clustering %lu spectra ...\n", spectra.size());
     std::vector<int> clusters = initialize_cluster(sz); // stores the representative for the cluster that the ith spectrum belongs to
     cluster_spectra(clusters, spectra);
     auto clustering_complete = Clock::now();
