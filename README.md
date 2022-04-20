@@ -35,7 +35,7 @@ We implement a cosine-similarity based clustering method and 2 heuristics to red
 Similarity Calculation - Iterate through all pairs of peaks from the 2 spectra, they represent the same point if they are within $PEAK_BIN Dalton of each other. If the dot product score is greater than $SIMILARITY_THRESHOLD, we can cluster them.
 
 The 2 heuristics are - 
-1. We only need to cluster 2 spectra whose pepmasses are within a $PEPMASS_BIN Dalton  of each other.
+1. We only need to cluster 2 spectra whose pepmasses are within a $PEPMASS_BIN dalton  of each other.
 
 2. Since the similarity calculation is expensive - we have a heuristic to reduce the number of calculations. We bucket the top 5 peaks of each spectra. We now only consider all the other spectra in these 5 buckets as viable candidates for clustering.
 
