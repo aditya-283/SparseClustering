@@ -254,12 +254,13 @@ int main(int argc, const char *argv[]) {
     peak_bin = get_option_float("-p", DEFAULT_PEAK_BIN);
     similarity_threshold = get_option_float("-t", DEFAULT_SIMILARITY_THRESHOLD);
 
+    printf("Using parameters pepmass_bin=%f peak_bin=%f and similarity_threshold=%f ...\n", pepmass_bin, peak_bin, similarity_threshold);
+
     if (file_path == NULL) {
         show_help(argv[0]);
         return -1;
     }
 
-    printf("Completing intial setup ...\n");
     auto init_start = Clock::now();
     std::vector<spectrum_t> spectra = parse_mgf_file(file_path);
     int sz = spectra.size();
