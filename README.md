@@ -22,8 +22,8 @@ OPTIONS:
 ## Project Structure
 ```
 SparseClustering/
-    - cluster.cpp
-    - cluster.h     Cluster spectra
+    - cluster.cpp   Cluster spectra
+    - cluster.h     
     - spectra.cpp   Read from file and print spectra
     - spectra.h     
 ```
