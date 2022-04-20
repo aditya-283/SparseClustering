@@ -20,22 +20,27 @@
 #include <iostream>
 #include <algorithm>
 
-#define DEFAULT_PEPMASS_THRESHOLD 2.f
-#define DEFAULT_PEAK_THRESHOLD 0.02f
+#define DEFAULT_PEPMASS_BIN 2.f
+#define DEFAULT_PEAK_BIN 0.02f
 #define DEFAULT_SIMILARITY_THRESHOLD 0.7f
 
+static int _argc;
+static const char **_argv;
+static float peak_bin;
+static float pepmass_bin;
+static float similarity_threshold;
 /**
 * @brief Implements the pepmass heuristic - returns true if thetwo spectra that have close enough pepmasses
 */
 bool inline passes_pepmass_test(const spectrum_t& a, const spectrum_t& b) {
-    return fabs(a.pepmass - b.pepmass) < DEFAULT_PEPMASS_THRESHOLD; 
+    return fabs(a.pepmass - b.pepmass) < pepmass_bin; 
 }
 
 /**
 * @brief Checks if 2 peaks represent the same thing by checking if they are close enough
 */
 bool inline is_identical_peak(const peak_t& a, const peak_t& b) {
-    return fabs(a - b) <  DEFAULT_PEAK_THRESHOLD;
+    return fabs(a - b) <  peak_bin;
 }
 
 /**
@@ -68,7 +73,7 @@ float cosine_similarity(const spectrum_t& a, const spectrum_t& b) {
 * @brief Checks if the cosine similarity of two spectra is large enough to cluster them together
 */
 bool inline is_similar(const spectrum_t& a, const spectrum_t& b) {
-    return cosine_similarity(a, b) > DEFAULT_SIMILARITY_THRESHOLD;
+    return cosine_similarity(a, b) > similarity_threshold;
 }
 
 /**
@@ -90,12 +95,18 @@ std::vector<int> initialize_cluster(int sz) {
 * @param peak the peak to be bucketed
 * @return string representation of peak bucket so that it can be hashed.
 */
+// std::string get_peak_bucket(peak_t peak) {
+//     char buffer[10];
+//     int round_peak = floorf(peak * 100);
+//     int nearest = ((int) (round_peak) / 2) * 2;
+//     snprintf(buffer, 10, "%.*f", 2, nearest/100.f);
+//     return buffer;
+// }
 std::string get_peak_bucket(peak_t peak) {
-    char buffer[10];
-    int round_peak = floorf(peak * 100);
-    int nearest = ((int) (round_peak) / 2) * 2;
-    snprintf(buffer, 10, "%.*f", 2, nearest/100.f);
-    return buffer;
+	char buffer[10];
+	float result =  floorf(peak / peak_bin) * peak_bin;
+	snprintf(buffer, 10, "%.*f", 3, result);
+	return buffer;
 }
 
 /**
@@ -197,7 +208,8 @@ void naive_cluster_spectra(std::vector<int>& clusters, const std::vector<spectru
         for (int j=0; j<i; j++) {
             int candidate = clusters[j];
             if (seen_candidates.find(candidate) != seen_candidates.end()) continue;
-            if (passes_pepmass_test(spectra[i], spectra[candidate]) && is_similar(spectra[i], spectra[candidate])) {
+            if (passes_pepmass_test(spectra[i], spectra[candidate]) && 
+                is_similar(spectra[i], spectra[candidate])) {
                 clusters[i] = candidate;
                 break;
             } else {
@@ -207,15 +219,54 @@ void naive_cluster_spectra(std::vector<int>& clusters, const std::vector<spectru
     }
 }
 
+
+const char *get_option_string(const char *option_name, const char *default_value) {
+    for (int i = _argc - 2; i >= 0; i -= 2)
+        if (strcmp(_argv[i], option_name) == 0)
+            return _argv[i + 1];
+    return default_value;
+}
+
+float get_option_float(const char *option_name, float default_value) {
+    for (int i = _argc - 2; i >= 0; i -= 2)
+        if (strcmp(_argv[i], option_name) == 0)
+            return (float)atof(_argv[i + 1]);
+    return default_value;
+}
+
+static void show_help(const char *program_path) {
+    printf("Usage: %s OPTIONS\n", program_path);
+    printf("\n");
+    printf("OPTIONS:\n");
+    printf("\t-f <input_filename> (required)\n");
+    printf("\t-m <pepmass_bin> (default: 2.0)\n");
+    printf("\t-p <peak_bin>  (default: 0.02)\n");
+    printf("\t-t <similarity_threshold> (default: 0.7)\n");
+}
+
 /**
 * @brief Parses .mgf file and clusters the spectra using our optimized algorithm
 * @return 0 on success
 */
-int main(int argc, char* argv[]) {
+int main(int argc, const char *argv[]) {
     using namespace std::chrono;
     typedef std::chrono::high_resolution_clock Clock;
     typedef std::chrono::duration<double> dsec;
-    std::string file_path = "data/100000.mgf";
+
+
+    _argc = argc - 1;
+    _argv = argv + 1;
+    const char *file_path = get_option_string("-f", NULL);
+    float pepmass_bin = get_option_float("-m", DEFAULT_PEPMASS_BIN);
+    float peak_bin = get_option_float("-p", DEFAULT_PEAK_BIN);
+    float similarity_threshold = get_option_float("-t", DEFAULT_SIMILARITY_THRESHOLD);
+
+    if (file_path == NULL) {
+        show_help(argv[0]);
+        return -1;
+    }
+
+    // std::string file_path = "data/100000.mgf";
 
     printf("Completing intial setup ...\n");
     auto init_start = Clock::now();
