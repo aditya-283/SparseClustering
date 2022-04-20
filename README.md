@@ -20,13 +20,19 @@ OPTIONS:
 ```
 
 ## Project Structure
-
+```
+SparseClustering/
+    - cluster.cpp
+    - cluster.h     Cluster spectra
+    - spectra.cpp   Read from file and print spectra
+    - spectra.h     
+```
 
 ## Background
 
 We implement a cosine-similarity based clustering method and 2 heuristics to reduce invocations of the similarity calculation subroutine.
 
-Similarity Calculation - Iterate through all pairs of peaks from the 2 spectra, they represent the same point if they are within $PEAK_BIN Dalton of each other. If the dot product score is than $SIMILARITY_THRESHOLD, we can cluster them.
+Similarity Calculation - Iterate through all pairs of peaks from the 2 spectra, they represent the same point if they are within $PEAK_BIN Dalton of each other. If the dot product score is greater than $SIMILARITY_THRESHOLD, we can cluster them.
 
 The 2 heuristics are - 
 1. We only need to cluster 2 spectra whose pepmasses are within a $PEPMASS_BIN Dalton  of each other.
