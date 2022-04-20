@@ -18,9 +18,11 @@
 * @brief Parsing states for parsing the .mgf file. 
 * Parsing each spectrum involves cycling through the three states.
 */
-
 enum parse_state { NO_PARSE, PROPERTIES, PEAKS };
 
+/**
+* @brief Properties for each spectra in the MGF file. Presence of unseen properties throws an error.
+*/
 enum property {TITLE, PEPMASS, RTINSECONDS};
 
 property inline from_string(std::string property_name) {
@@ -35,6 +37,9 @@ bool inline starts_with(const std::string& big, const std::string& small) {
            equal(small.begin(), small.end(), big.begin());
 }
 
+/**
+* @brief Parses a line from the file, adds the read property to the current spectra being read into, makes a state transition if necessary.
+*/
 parse_state read_property(std::string line, spectrum_t* spectrum) {
     std::string prop_delimiter = "=";
     std::string prop_name = line.substr(0, line.find(prop_delimiter)); 
@@ -55,6 +60,9 @@ parse_state read_property(std::string line, spectrum_t* spectrum) {
     return final_state;
 }
 
+/**
+* @brief Progress bar. 
+*/
 void print_progress(double percentage) {
     int val = (int) (percentage * 100);
     int lpad = (int) (percentage * PBWIDTH);
@@ -64,9 +72,9 @@ void print_progress(double percentage) {
 }
 
 /**
-* @brief 
-* @param
-* @return
+* @brief Parse the file passed as an argument and return a vector of spectra storing each spectra's properties, peaks and intensities.
+* @param path String that stores the file path for the .mgf file
+* @return a list of spectra
 */
 std::vector<spectrum_t> parse_mgf_file(std::string path) {
     std::vector<spectrum_t> spectra;
@@ -103,9 +111,8 @@ std::vector<spectrum_t> parse_mgf_file(std::string path) {
 }
 
 /**
-* @brief 
-* @param
-* @return
+* @brief Print a spectrum to stdout
+* @param spectrum to be printed
 */
 void print_spectrum(spectrum_t spectrum, bool verbose) {
     printf("Title: %s\n", spectrum.title.c_str());
